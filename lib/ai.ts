@@ -1,4 +1,4 @@
-// lib/ai.ts
+
 
 const apiKey = process.env.STABILITY_API_KEY;
 
@@ -10,14 +10,6 @@ if (!apiKey) {
 
 type GenerationMode = "text-to-image" | "image-to-image";
 
-/**
- * Generate or edit a product-style marketing image using Stability SD3.
- *
- * - If `imageBytes` is provided => image-to-image (edit)
- * - If not => text-to-image (pure generation)
- *
- * Returns a base64 data URL ready to use in <img src="...">
- */
 export async function generateWithStability(params: {
   instruction: string;
   imageBytes?: Buffer;
@@ -31,12 +23,22 @@ export async function generateWithStability(params: {
 
   const mode: GenerationMode = imageBytes ? "image-to-image" : "text-to-image";
 
-  const fullPrompt = `
+  const fullPrompt =
+    mode === "image-to-image"
+      ? `
+You are editing the provided product photo.
+
+Apply ONLY these changes: ${instruction}
+
+Keep the same product, shape, camera angle and proportions.
+Do NOT change the object identity.
+Do NOT add extra objects, people, text, or logos.
+Just adjust background, colors and lighting to match the request.
+`.trim()
+      : `
 Generate a clean, high-quality, realistic e-commerce product photo.
 
-User edit instruction:
-
-${instruction}
+Follow this instruction: ${instruction}
 
 The result should be sharp, well lit, and professional, suitable for product listings or ads.
 `.trim();
@@ -45,21 +47,19 @@ The result should be sharp, well lit, and professional, suitable for product lis
   formData.append("prompt", fullPrompt);
   formData.append("output_format", "png");
   formData.append("mode", mode);
-  formData.append("model", "sd3-medium"); // or "sd3-large", etc.
+  formData.append("model", "sd3-medium");
 
-  // ❗ aspect_ratio is ONLY allowed for text-to-image mode
+  
   if (mode === "text-to-image") {
     formData.append("aspect_ratio", "1:1");
   }
 
-  // If editing an existing image, attach it and strength
   if (imageBytes) {
     const blob = new Blob([imageBytes], {
       type: mimeType || "image/png",
     });
     formData.append("image", blob, "input-image.png");
-    // Controls how much the prompt changes the original (0–1)
-    formData.append("strength", "0.35");
+    formData.append("strength", "0.25"); 
   }
 
   try {
@@ -91,20 +91,7 @@ The result should be sharp, well lit, and professional, suitable for product lis
     return `data:image/png;base64,${base64}`;
   } catch (err: any) {
     console.error("Stability API error:", err);
-
     const message = err?.message || String(err);
-
-    if (message.includes("401") || message.includes("403")) {
-      throw new Error(
-        "Stability API key is invalid or unauthorized. Double-check STABILITY_API_KEY."
-      );
-    }
-    if (message.includes("429")) {
-      throw new Error(
-        "Stability rate limit or quota reached. Please check your Stability dashboard."
-      );
-    }
-
     throw new Error("Stability image generation failed: " + message);
   }
 }
