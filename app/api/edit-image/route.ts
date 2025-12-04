@@ -1,4 +1,4 @@
-// app/api/edit-image/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
 import { generateWithStability } from "@/lib/ai";
 
@@ -17,13 +17,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    let imageBytes: Buffer | undefined = undefined;
+    let imageBytes: ArrayBuffer | undefined = undefined;
     let mimeType: string | undefined = undefined;
 
-    // If an image was uploaded, convert it to bytes for Stability
     if (image && image instanceof File && image.size > 0) {
-      const arrBuf = await image.arrayBuffer();
-      imageBytes = Buffer.from(arrBuf);
+      const arrBuf = await image.arrayBuffer(); 
+      imageBytes = arrBuf;
       mimeType = image.type || "image/png";
     }
 

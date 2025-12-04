@@ -20,7 +20,6 @@ export default function HomePage() {
   const [status, setStatus] = useState<GenerationState>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // For full-screen preview
   const [lightboxImage, setLightboxImage] = useState<LightboxImage | null>(
     null
   );
@@ -92,7 +91,7 @@ export default function HomePage() {
       </header>
 
       <section className="grid gap-6 md:grid-cols-2">
-        {/* Left side: controls */}
+        
         <form
           onSubmit={handleSubmit}
           className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/60 p-4 shadow-lg"
@@ -143,7 +142,7 @@ export default function HomePage() {
           )}
         </form>
 
-        {/* Right side: previews */}
+       
         <div className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             
@@ -171,7 +170,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* AI Output */}
+            
             <div className="space-y-2">
               <div className="flex items-center justify-between gap-2">
                 <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
@@ -227,7 +226,7 @@ export default function HomePage() {
 
   
 
-      {/* Lightbox / Fullscreen preview */}
+      
       {lightboxImage && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4 py-8"
@@ -235,7 +234,7 @@ export default function HomePage() {
         >
           <div
             className="relative max-h-full max-w-4xl"
-            onClick={(e) => e.stopPropagation()} // prevent closing when clicking on image
+            onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-2 flex items-center justify-between gap-4">
               <span className="text-xs font-medium text-slate-200">

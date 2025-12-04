@@ -1,4 +1,5 @@
 
+import { Buffer } from "buffer"; 
 
 const apiKey = process.env.STABILITY_API_KEY;
 
@@ -12,7 +13,7 @@ type GenerationMode = "text-to-image" | "image-to-image";
 
 export async function generateWithStability(params: {
   instruction: string;
-  imageBytes?: Buffer;
+  imageBytes?: ArrayBuffer;  
   mimeType?: string;
 }): Promise<string> {
   const { instruction, imageBytes, mimeType } = params;
@@ -26,14 +27,14 @@ export async function generateWithStability(params: {
   const fullPrompt =
     mode === "image-to-image"
       ? `
-You are editing the provided product photo.
+You are editing the provided product/portrait photo.
 
 Apply ONLY these changes: ${instruction}
 
-Keep the same product, shape, camera angle and proportions.
-Do NOT change the object identity.
-Do NOT add extra objects, people, text, or logos.
-Just adjust background, colors and lighting to match the request.
+Keep the SAME person, face, facial features, skin tone, hair, pose, and body.
+Do NOT change the face, head, eyes, nose, or mouth.
+Do NOT change the body shape or camera angle.
+Only modify the clothing colors and/or background according to the instruction.
 `.trim()
       : `
 Generate a clean, high-quality, realistic e-commerce product photo.
@@ -54,12 +55,13 @@ The result should be sharp, well lit, and professional, suitable for product lis
     formData.append("aspect_ratio", "1:1");
   }
 
+  
   if (imageBytes) {
     const blob = new Blob([imageBytes], {
       type: mimeType || "image/png",
     });
     formData.append("image", blob, "input-image.png");
-    formData.append("strength", "0.25"); 
+    formData.append("strength", "0.18");
   }
 
   try {
